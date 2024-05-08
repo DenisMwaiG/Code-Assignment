@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../../../data/api.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -7,6 +8,15 @@ import { Component } from '@angular/core';
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit {
+
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit() {
+    this.apiService.getStudents()
+      .subscribe((items) => {
+        console.log(items);
+      });
+  }
 
 }
