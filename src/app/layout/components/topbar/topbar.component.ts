@@ -6,5 +6,7 @@ import { Component } from '@angular/core';
   styleUrl: './topbar.component.scss'
 })
 export class TopbarComponent {
+  role = 'Admin';
+  username = 'Mr Boss';
 
 }

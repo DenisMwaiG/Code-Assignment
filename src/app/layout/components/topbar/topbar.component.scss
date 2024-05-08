@@ -1,0 +1,17 @@
+.logo-text {
+  padding: 0 8px;
+  font-weight: 500;
+  font-size: 14px;
+
+  span:first-of-type {
+    color: var(--accent-color)
+  }
+
+  span:last-of-type {
+    color: var(--primary-color)
+  }
+}
+
+.user {
+  font-size: 14px;
+}

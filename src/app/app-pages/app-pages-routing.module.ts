@@ -37,11 +37,11 @@ const TeacherLevelRoutes: Routes = [
 
 const StudentLevelRoutes: Routes = [
   {
-    path: ':student/overview',
+    path: 'overview',
     component: StudentOverviewComponent
   },
   {
-    path: ':student/exam/:exam/performance',
+    path: 'exam/:exam/performance',
     component: StudentExamPerformanceComponent
   }
 ];
@@ -56,7 +56,7 @@ const routes: Routes = [
     children: [...TeacherLevelRoutes, ...StudentLevelRoutes]
   },
   {
-    path: '',
+    path: ':student',
     children: StudentLevelRoutes
   }
 ];

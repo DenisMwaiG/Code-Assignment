@@ -1,1 +1,14 @@
-<p>topbar works!</p>
+<nav class="navbar navbar-expand-lg d-flex justify-content-between px-2 shadow-sm">
+  <a class="navbar-brand d-flex align-items-center" routerLink="/">
+      <img src="assets/images/logo.png" alt="Zeraki Analytics" style="height: 48px;">
+      <span class="logo-text">
+        <span>Zeraki</span><br>
+        <span>Analytics</span>
+      </span>
+  </a>
+
+  <!-- TODO: Should have dropdown to logout -->
+  <button class="user btn btn-success text-center">
+    {{role}} - {{username}}
+  </button>
+</nav>

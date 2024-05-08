@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { menuOptions } from '../../data/menu';
 
 @Component({
   selector: 'app-footer',
@@ -7,4 +8,5 @@ import { Component } from '@angular/core';
 })
 export class FooterComponent {
 
+  navOptions = menuOptions.Admin;
 }

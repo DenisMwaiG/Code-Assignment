@@ -1,1 +1,9 @@
-<p>footer works!</p>
+<nav class="navbar fixed-bottom d-md-none">
+  <div class="container-fluid d-flex justify-content-around pb-2">
+    @for (option of navOptions; track option.title) {
+      <a [routerLink]="option.link" class="text-decoration-none">
+        <i class="fas fa-{{option.icon}}"></i>
+      </a>
+    }
+  </div>
+</nav>

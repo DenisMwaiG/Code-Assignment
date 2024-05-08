@@ -1,1 +1,8 @@
-<p>sidebar works!</p>
+<nav class="sidebar  d-none d-md-flex flex-column">
+  @for (option of navOptions; track option.title) {
+      <a [routerLink]="option.link">
+        <i class="fas fa-{{option.icon}}"></i>
+        <span class="ps-3">{{option.title}}</span>
+      </a>
+  }
+</nav>
