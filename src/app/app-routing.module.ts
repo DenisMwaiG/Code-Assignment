@@ -1,7 +1,8 @@
-import { Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { LandingPageComponent } from './public-pages/landing-page/landing-page.component';
 import { LoginPageComponent } from './public-pages/login-page/login-page.component';
 import { LayoutComponent } from './layout/layout.component';
+import { NgModule } from '@angular/core';
 
 export const routes: Routes = [
   {
@@ -19,3 +20,9 @@ export const routes: Routes = [
   },
   { path: '**', redirectTo: '' }
 ];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
