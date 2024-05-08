@@ -11,7 +11,7 @@ import { MockApiInterceptor } from './data/mock-data/mock-api.interceptor';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     BrowserModule,
