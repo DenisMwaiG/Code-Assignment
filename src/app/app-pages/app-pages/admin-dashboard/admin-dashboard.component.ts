@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AdminService } from '../../../data/api.service';
 import { map, Observable } from 'rxjs';
+import { AdminService } from '../../../data/api.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -13,6 +13,7 @@ export class AdminDashboardComponent implements OnInit {
     title: string;
     value: number;
   }[]>;
+  lastExamPerformance$!: Observable<any>;
 
   constructor(private apiService: AdminService) {}
 
@@ -26,10 +27,20 @@ export class AdminDashboardComponent implements OnInit {
         ];
       })
     );
-    this.apiService.getLastResults()
-      .subscribe((items) => {
-        console.log(items);
-      });
+    this.lastExamPerformance$ = this.apiService.getLastResults()
+      .pipe(
+        map((lastExam) => {
+          // Since it is sth like: Form 4 - End of Term 1
+          const exam = lastExam[0].performance.examName.split(' - ').pop();
+          const title = `Last Exam's Performance: ${exam}`;
+          const ordered = lastExam.sort((a, b) => a.form - b.form);
+          const xAxisNames = ordered.map((p) => `Form ${p.form}`);
+          const yAxisData = [{
+            name: 'Mean Points',
+            data: ordered.map((p) => p.performance.meanPoints),
+          }]
+          return { xAxisNames, yAxisData, title };
+        })
+      );
   }
-
 }

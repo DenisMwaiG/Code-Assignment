@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AdminSummary } from './types/ResponseTypes.interface';
+import { AdminSummary, ClassPerformance } from './types/ResponseTypes.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,7 @@ export class AdminService {
     return this.http.get<AdminSummary>('/admin-dashboard-summary');
   }
 
-  getLastResults(): Observable<any> {
-    return this.http.get('/admin/last-exam-performance');
+  getLastResults(): Observable<ClassPerformance[]> {
+    return this.http.get<ClassPerformance[]>('/admin/last-exam-performance');
   }
 }
