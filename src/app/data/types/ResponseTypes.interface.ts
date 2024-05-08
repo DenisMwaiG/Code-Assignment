@@ -1,12 +1,4 @@
-export interface AdminSummary {
-  classes: number;
-  teachers: number;
-  totalStudents: number;
-  [index: number]: {
-    form: number;
-    students: number;
-  };
-};
+import { StreamInfo } from "../mock-data/data-generator";
 
 interface SubjectSummary {
   subject: string;
@@ -36,3 +28,17 @@ export interface ClassPerformance {
   form: number;
   performance: Performance;
 }
+
+export interface DetailedClassSummary {
+  form: number;
+  students: number;
+  summary: StreamInfo[];
+  lastExamInfo: Performance;
+}
+
+export interface AdminSummary {
+  classes: number;
+  teachers: number;
+  totalStudents: number;
+  detailedClassSummary: DetailedClassSummary[];
+};

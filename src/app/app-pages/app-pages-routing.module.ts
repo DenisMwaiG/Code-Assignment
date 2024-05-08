@@ -22,15 +22,15 @@ const AdminLevelRoutes: Routes = [
 
 const TeacherLevelRoutes: Routes = [
   {
-    path: 'class/:class/overview',
+    path: 'form/:form/overview',
     component: ClassOverviewComponent
   },
   {
-    path: 'class/:class/exam/:exam/performance',
+    path: 'form/:form/exam/:exam/performance',
     component: ClassExamPerformanceComponent
   },
   {
-    path: 'class/:class/students',
+    path: 'form/:form/students',
     component: StudentListComponent
   }
 ];

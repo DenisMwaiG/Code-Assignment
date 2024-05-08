@@ -1,5 +1,15 @@
+.content {
+  padding-top: var(--topbar-height);
+}
+
 .layout {
   flex-grow: 1;
-  padding: 24px 12px;
+  padding: 24px 24px;
   background-color: --var(light-bg-color);
+  margin-left: var(--sidebar-width);
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+    padding: 16px 8px;
+  }
 }

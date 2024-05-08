@@ -31,7 +31,7 @@ export class BarchartComponent {
         backgroundColor: "rgba(0,0,0,0)",
         borderColor: "rgba(0,0,0,0)",
         top: 100,
-        bottom: 50,
+        bottom: 60,
       },
       tooltip: {
         trigger: "axis",
@@ -41,7 +41,8 @@ export class BarchartComponent {
       legend: {
         data: this.xAxisData.map((s) => s.name),
         textStyle: { color: "#858d98" },
-        right: 0,
+        left: 20,
+        bottom: 0,
       },
       xAxis: {
         type: 'category',

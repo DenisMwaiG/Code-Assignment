@@ -1,5 +1,7 @@
 <div class="container">
-  <div class="row">
+
+  <!-- SCHOOL METRICS -->
+  <div class="row mb-2">
     @for (metric of adminSummary$ | async; track metric.title) {
       <div class="col-sm-12 col-md-6 col-lg-4 mb-3">
           <app-summary-card [title]="metric.title" [value]="metric.value"></app-summary-card>
@@ -7,11 +9,21 @@
     }
   </div>
 
+  <!-- LAST EXAM SUMMARY -->
   @if (lastExamPerformance$ | async; as summary) {
     <app-barchart
       [title]="summary.title"
       [yAxisTitles]="summary.xAxisNames"
       [xAxisData]="summary.yAxisData">
     </app-barchart>
+  }
+
+  <!-- CLASS SUMMARY -->
+  @if (classSummaries$ | async; as classes) {
+    <div class="row mt-4">
+      <div class="col-12">
+        <app-table [rows]="classes"></app-table>
+      </div>
+    </div>
   }
 </div>

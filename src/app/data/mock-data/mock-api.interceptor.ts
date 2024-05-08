@@ -6,7 +6,7 @@ import {
   HttpEvent,
   HttpResponse,
 } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { last, Observable, of } from 'rxjs';
 import { MockDataService } from './mock-data.service';
 import { mockDataGenerator } from './data-generator';
 
@@ -65,14 +65,17 @@ export class MockApiInterceptor implements HttpInterceptor {
   }
 
   private handleAdminDashboardSummary() {
-    const studentPerForm = this.MOCK_DATA.map((data) => ({
+    const detailedClassSummary = this.MOCK_DATA.map((data) => ({
       form: data.form,
       students: data.studentNo,
+      summary: data.streamsInfo,
+      lastExamInfo: data.lastExamInfo,
     }));
     return {
       teachers: 10,
       classes: 16,
-      totalStudents: studentPerForm.reduce((acc, data) => acc + data.students, 0),
+      totalStudents: detailedClassSummary.reduce((acc, data) => acc + data.students, 0),
+      detailedClassSummary,
     };
   }
 

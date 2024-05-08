@@ -1,9 +1,10 @@
 .sidebar {
-  width: 220px;
+  width: var(--sidebar-width);
   min-height: calc(100vh - 80px);
   background-color: #F8F9FA;
   border-right: 1px solid #dddddd3e;
   padding: 16px 8px;
+  position: fixed;
 }
 .sidebar a {
   display: block;

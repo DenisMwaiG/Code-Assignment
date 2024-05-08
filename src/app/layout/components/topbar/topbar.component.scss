@@ -1,3 +1,9 @@
+.navbar {
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+  background-color: var(--light-bg-color);
+}
 .logo-text {
   padding: 0 8px;
   font-weight: 500;

@@ -1,0 +1,26 @@
+<table class="table table-striped">
+  <thead>
+    <tr>
+      @for (header of headers; track header; let index = $index) {
+        <th class="px-3" [class.text-center]="rows[0][index].type === 'number'">{{ header }}</th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (row of rows; track row) {
+      <tr>
+        @for (header of headers; track header; let index = $index) {
+          @if (row[index].type === 'link') {
+            <td class="link"><a [routerLink]="row[index].link">{{ row[index].value }}</a></td>
+          } @else {
+            <td
+              class="px-3"
+              [class.text-center]="row[index].type === 'number'">
+              {{ row[index].value }}
+            </td>
+          }
+        }
+      </tr>
+    }
+  </tbody>
+</table>

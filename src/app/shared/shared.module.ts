@@ -5,12 +5,15 @@ import { NgxEchartsModule } from 'ngx-echarts';
 
 import { SummaryCardComponent } from './summary-card/summary-card.component';
 import { BarchartComponent } from './barchart/barchart.component';
+import { TableComponent } from './table/table.component';
+import { RouterModule } from '@angular/router';
 
 
 @NgModule({
-  declarations: [SummaryCardComponent, BarchartComponent],
+  declarations: [SummaryCardComponent, BarchartComponent, TableComponent],
   imports: [
     CommonModule,
+    RouterModule,
     NgxEchartsModule.forRoot({
       echarts: () => import('echarts')
     }),
@@ -18,6 +21,7 @@ import { BarchartComponent } from './barchart/barchart.component';
   exports: [
     SummaryCardComponent,
     BarchartComponent,
+    TableComponent,
   ]
 })
 export class SharedModule { }

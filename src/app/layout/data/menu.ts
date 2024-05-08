@@ -5,11 +5,6 @@ export const menuOptions = {
       icon: 'tachometer-alt',
       link: '/dashboard'
     },
-    {
-      title: 'Classes',
-      icon: 'users',
-      link: '/class-list'
-    },
   ],
   Teacher: [
     {
