@@ -5,9 +5,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LayoutsModule } from './layout/layouts.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { MockDataService } from './data/mock-data.service';
+import { MockDataService } from './data/mock-data/mock-data.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { MockApiInterceptor } from './data/mock-api.interceptor';
+import { MockApiInterceptor } from './data/mock-data/mock-api.interceptor';
 
 @NgModule({
   declarations: [

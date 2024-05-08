@@ -1,3 +1,5 @@
+import { Grade } from "../types/Exam.interface";
+
 export const gradeLimits = {
   "A": { "upperLimit": 100, "lowerLimit": 93, "grade": "A" },
   "A-": { "upperLimit": 92, "lowerLimit": 90, "grade": "A-" },
@@ -38,7 +40,31 @@ export const exams = [
   'Mid Term',
 ]
 
-export const noOfTerms = [1, 2, 3];
+export const gradesReference: {
+  upperLimit: number;
+  lowerLimit: number;
+  grade: Grade;
+}[] = [
+  { upperLimit: 100, lowerLimit: 90, grade: "A" },
+  { upperLimit: 89, lowerLimit: 85, grade: "A-" },
+  { upperLimit: 84, lowerLimit: 80, grade: "B+" },
+  { upperLimit: 79, lowerLimit: 75, grade: "B" },
+  { upperLimit: 74, lowerLimit: 70, grade: "B-" },
+  { upperLimit: 69, lowerLimit: 65, grade: "C+" },
+  { upperLimit: 64, lowerLimit: 60, grade: "C" },
+  { upperLimit: 59, lowerLimit: 55, grade: "C-" },
+  { upperLimit: 54, lowerLimit: 50, grade: "D+" },
+  { upperLimit: 49, lowerLimit: 45, grade: "D" },
+  { upperLimit: 44, lowerLimit: 40, grade: "D-" },
+  { upperLimit: 39, lowerLimit: 0, grade: "E" }
+]
+
+export function generateUUID() {
+  return 'xxxxxxxxxxxx'.replace(/[x]/g, function (c) {
+    const r = Math.random() * 16 | 0; // Random value between 0 and 15
+    return r.toString(16); // Convert to hexadecimal
+  });
+}
 
 export const studentFirstNames = [
   'John',
