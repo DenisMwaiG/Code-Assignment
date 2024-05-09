@@ -1,1 +1,46 @@
-<p>class-exam-performance works!</p>
+<h5 class="px-3">Class(es) Exam Performance</h5>
+
+<div class="container">
+
+  <!-- TODO: OVERALL PERFORMANCE IN AN EXAM FOR ALL CLASSES. -->
+  <div class="row mb-2">
+    @for (metric of adminSummary$ | async; track metric.title) {
+      <div class="col-sm-12 col-md-6 col-lg-4 mb-3">
+          <app-summary-card [title]="metric.title" [value]="metric.value"></app-summary-card>
+      </div>
+    }
+  </div>
+
+  <!-- TODO: SUBJECT SUMMARY BAR CHART -->
+  @if (lastExamPerformance$ | async; as summary) {
+    <div class="row">
+      <div class="col-8">
+        <app-barchart
+          [title]="summary.title"
+          [xAxisLabels]="summary.xAxisNames"
+          [seriesValues]="summary.yAxisData">
+        </app-barchart>
+      </div>
+
+      <!-- TODO: ENABLE VIEWING SUBJECT PERFORMANCE FOR AN EXAM -->
+      <div class="col-4">
+        @if (classSummaries$ | async; as classes) {
+          <div class="card">
+            <app-table [rows]="classes"></app-table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- TODO: COMPARE INDIVIDUAL CLASS PERFORMANCES. SHOULD BE HIDDEN IF ROLE IS TEACHER -->
+  @if (classSummaries$ | async; as classes) {
+    <div class="row mt-4">
+      <div class="col-12">
+        <app-table [rows]="classes"></app-table>
+      </div>
+    </div>
+  }
+
+  <!-- TODO: FOR TEACHERS, THE TABLE DATA SHOULD BE THE STUDENTS PERFORMANCE -->
+</div>

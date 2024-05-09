@@ -1,3 +1,4 @@
+<h5 class="p-3">School Overview</h5>
 <div class="container">
 
   <!-- SCHOOL METRICS -->
@@ -13,8 +14,8 @@
   @if (lastExamPerformance$ | async; as summary) {
     <app-barchart
       [title]="summary.title"
-      [yAxisTitles]="summary.xAxisNames"
-      [xAxisData]="summary.yAxisData">
+      [xAxisLabels]="summary.xAxisNames"
+      [seriesValues]="summary.yAxisData">
     </app-barchart>
   }
 

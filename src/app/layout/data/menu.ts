@@ -10,12 +10,12 @@ export const menuOptions = {
     {
       title: 'Dashboard',
       icon: 'tachometer-alt',
-      link: '/teacher/dashboard'
+      link: '/form/4/overview'
     },
     {
       title: 'Students',
       icon: 'chalkboard-teacher',
-      link: '/teacher/classes'
+      link: '/form/4/students'
     },
   ],
   Student: [
@@ -23,16 +23,6 @@ export const menuOptions = {
       title: 'Dashboard',
       icon: 'tachometer-alt',
       link: 'overview'
-    },
-    {
-      title: 'Assignments',
-      icon: 'tasks',
-      link: '/student/assignments'
-    },
-    {
-      title: 'Feedback',
-      icon: 'comments',
-      link: '/student/feedback'
     },
   ]
 }

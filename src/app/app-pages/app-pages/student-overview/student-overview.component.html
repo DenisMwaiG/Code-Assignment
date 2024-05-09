@@ -1,1 +1,33 @@
-<p>student-overview works!</p>
+<h5 class="p-3">Student Overview</h5>
+<div class="container">
+
+  @if (lastExamPerformance$ | async; as summary) {
+    <div class="row">
+      <div class="col-8">
+        <app-linechart
+          [xAxisLabels]="summary.xAxisNames"
+          [seriesValues]="summary.yAxisData"
+          [title]="summary.title"
+        ></app-linechart>
+      </div>
+
+      <!-- TODO: ENABLE VIEWING SUBJECT PERFORMANCE FOR AN EXAM -->
+      <div class="col-4">
+        @if (classSummaries$ | async; as classes) {
+          <div class="card">
+            <app-table [rows]="classes"></app-table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- CLASS SUMMARY -->
+  @if (classSummaries$ | async; as classes) {
+    <div class="row mt-4">
+      <div class="col-12">
+        <app-table [rows]="classes"></app-table>
+      </div>
+    </div>
+  }
+</div>

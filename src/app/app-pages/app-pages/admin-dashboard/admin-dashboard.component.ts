@@ -47,7 +47,7 @@ export class AdminDashboardComponent implements OnInit {
 
     private formatLastExamData(lastExam: ClassPerformance[]) {
       const exam = lastExam[0].performance.examName.split(' - ').pop();
-      const title = `Last Exam's Performance: ${exam}`;
+      const title = `School Latest Performance - ${exam}`;
       const ordered = lastExam.sort((a, b) => a.form - b.form);
       const xAxisNames = ordered.map((p) => `Form ${p.form}`);
       const yAxisData = [{

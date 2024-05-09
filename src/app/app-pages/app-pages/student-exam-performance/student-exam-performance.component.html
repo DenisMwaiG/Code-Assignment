@@ -1,1 +1,31 @@
-<p>student-exam-performance works!</p>
+<h5 class="px-3">Student Exam Performance</h5>
+<div class="container">
+  <!-- SCHOOL METRICS -->
+  <div class="row mb-2">
+    @for (metric of adminSummary$ | async; track metric.title) {
+      <div class="col-sm-12 col-md-6 col-lg-4 mb-3">
+          <app-summary-card [title]="metric.title" [value]="metric.value"></app-summary-card>
+      </div>
+    }
+  </div>
+
+  <!-- LAST EXAM SUMMARY -->
+  @if (lastExamPerformance$ | async; as summary) {
+    <app-barchart
+      [title]="summary.title"
+      [xAxisLabels]="summary.xAxisNames"
+      [seriesValues]="summary.yAxisData">
+    </app-barchart>
+  }
+
+  <!-- SUBJECT SUMMARY -->
+
+  @if (classSummaries$ | async; as classes) {
+    <div class="row mt-4">
+      <h6 class="px-3">Subject Performance</h6>
+      <div class="col-12">
+        <app-table [rows]="classes"></app-table>
+      </div>
+    </div>
+  }
+</div>
