@@ -9,22 +9,39 @@ import * as echarts from 'echarts';
 })
 export class BarchartComponent {
   @Input() title!: string;
-  @Input() yAxisTitles: string[] = [];
-  @Input() xAxisData: { name: string; data: number[] }[] = [];
-  lineBarChart!: EChartsOption;
+  @Input() xAxisLabels: string[] = [];
+  @Input() seriesValues: { name: string; data: number[] }[] = [];
+  chartOptions: EChartsOption = {};
 
   ngOnInit(): void {
     this.renderChart();
   }
 
   renderChart(): void {
-    const chartDom = document.getElementById('barChart')!;
-    const chart = echarts.init(chartDom);
-
-    const options: EChartsOption = {
+    this.chartOptions = {
       title: {
         text: this.title,
       },
+      legend: {
+        data: this.seriesValues.map((s) => s.name),
+        textStyle: { color: "#858d98" },
+        left: 20,
+        bottom: 0,
+      },
+      xAxis: {
+        type: 'category',
+        data: this.xAxisLabels,
+        axisPointer: { type: "shadow" },
+        axisLine: { lineStyle: { color: "#858d98" } },
+      },
+      yAxis: {
+        type: 'value',
+      },
+      series: this.seriesValues.map((param) => ({
+        name: param.name,
+        type: 'bar',
+        data: param.data,
+      })),
       grid: {
         zlevel: 0,
         borderWidth: 0,
@@ -38,28 +55,6 @@ export class BarchartComponent {
         axisPointer: { type: "cross", crossStyle: { color: "#999" } },
       },
       color: ["#43AB49"],
-      legend: {
-        data: this.xAxisData.map((s) => s.name),
-        textStyle: { color: "#858d98" },
-        left: 20,
-        bottom: 0,
-      },
-      xAxis: {
-        type: 'category',
-        data: this.yAxisTitles,
-        axisPointer: { type: "shadow" },
-        axisLine: { lineStyle: { color: "#858d98" } },
-      },
-      yAxis: {
-        type: 'value',
-      },
-      series: this.xAxisData.map((param) => ({
-        name: param.name,
-        type: 'bar',
-        data: param.data,
-      })),
     };
-
-    chart.setOption(options);
   }
 }
