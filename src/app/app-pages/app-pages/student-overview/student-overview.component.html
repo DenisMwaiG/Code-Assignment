@@ -1,32 +1,41 @@
-<h5 class="p-3">Student Overview</h5>
 <div class="container">
 
-  @if (lastExamPerformance$ | async; as summary) {
+  <div class="row mb-2">
+    @for (student of studentInfo$ | async; track student.title) {
+      <div class="col-sm-12 col-md-6 col-lg-4 mb-3">
+          <app-summary-card [title]="student.title" [value]="student.value"></app-summary-card>
+      </div>
+    }
+  </div>
+
+  @if (performanceTrend$ | async; as summary) {
     <div class="row">
       <div class="col-8">
         <app-linechart
           [xAxisLabels]="summary.xAxisNames"
           [seriesValues]="summary.yAxisData"
           [title]="summary.title"
+          (chartClick)="onChartEvent($event)">
         ></app-linechart>
       </div>
 
       <!-- TODO: ENABLE VIEWING SUBJECT PERFORMANCE FOR AN EXAM -->
       <div class="col-4">
-        @if (classSummaries$ | async; as classes) {
-          <div class="card">
-            <app-table [rows]="classes"></app-table>
-          </div>
-        }
+        <app-chart-data
+          [title]="displayTitle"
+          [displayedData]="displayedData"
+          [mode]="displayMode"
+          (onToggleMode)="toggleDisplayedData()"
+        ></app-chart-data>
       </div>
     </div>
   }
 
   <!-- CLASS SUMMARY -->
-  @if (classSummaries$ | async; as classes) {
+  @if (examList$ | async; as exams) {
     <div class="row mt-4">
       <div class="col-12">
-        <app-table [rows]="classes"></app-table>
+        <app-table [rows]="exams"></app-table>
       </div>
     </div>
   }

@@ -1,5 +1,5 @@
 <div class="card">
   <div class="card-body pt-4">
-    <div echarts [options]="chartOptions" class="chart"></div>
+    <div echarts [options]="chartOptions" (chartClick)="chartClick.emit($event.name)" class="chart"></div>
   </div>
 </div>

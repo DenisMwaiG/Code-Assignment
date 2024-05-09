@@ -1,6 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EChartsOption } from "echarts";
-import * as echarts from 'echarts';
+
+export interface BarChartData {
+  title: string;
+  xAxisNames: string[];
+  yAxisData: { name: string; data: number[] }[];
+}
 
 @Component({
   selector: 'app-barchart',
@@ -11,6 +16,7 @@ export class BarchartComponent {
   @Input() title!: string;
   @Input() xAxisLabels: string[] = [];
   @Input() seriesValues: { name: string; data: number[] }[] = [];
+  @Output() chartClick = new EventEmitter();
   chartOptions: EChartsOption = {};
 
   ngOnInit(): void {

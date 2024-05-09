@@ -14,7 +14,7 @@ export const menuOptions = {
     },
     {
       title: 'Students',
-      icon: 'chalkboard-teacher',
+      icon: 'users',
       link: '/form/4/students'
     },
   ],

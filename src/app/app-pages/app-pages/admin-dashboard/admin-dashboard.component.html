@@ -1,5 +1,5 @@
-<h5 class="p-3">School Overview</h5>
 <div class="container">
+  <h4 class="pb-3">School Overview</h4>
 
   <!-- SCHOOL METRICS -->
   <div class="row mb-2">
@@ -11,17 +11,34 @@
   </div>
 
   <!-- LAST EXAM SUMMARY -->
-  @if (lastExamPerformance$ | async; as summary) {
-    <app-barchart
-      [title]="summary.title"
-      [xAxisLabels]="summary.xAxisNames"
-      [seriesValues]="summary.yAxisData">
-    </app-barchart>
+  @if (lastExamPerformances$ | async; as summary) {
+    <div class="row">
+      <div class="col-8">
+        <app-barchart
+          [title]="summary.title"
+          [xAxisLabels]="summary.xAxisNames"
+          [seriesValues]="summary.yAxisData"
+          (chartClick)="onChartEvent($event)">
+        </app-barchart>
+      </div>
+
+      <!-- ENABLE VIEWING SUBJECT/STREAM PERFORMANCE FOR EXAM -->
+      <div class="col-4">
+        <app-chart-data
+          [title]="displayTitle"
+          [displayedData]="displayedData"
+          [mode]="displayMode"
+          [modes]="displayModes"
+          (onToggleMode)="toggleDisplayedData()"
+        ></app-chart-data>
+      </div>
+    </div>
   }
 
-  <!-- CLASS SUMMARY -->
-  @if (classSummaries$ | async; as classes) {
-    <div class="row mt-4">
+  <!-- CLASSES SUMMARY OF EXAMS -->
+  @if (classScores$ | async; as classes) {
+    <div class="row mt-5">
+      <h5 class="px-4 pb-2">Exam Details</h5>
       <div class="col-12">
         <app-table [rows]="classes"></app-table>
       </div>

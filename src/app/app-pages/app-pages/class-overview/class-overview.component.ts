@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { AdminService } from '../../../data/api.service';
-import { AdminSummary, ClassPerformance } from '../../../data/types/ResponseTypes.interface';
+import { Router } from '@angular/router';
+import { filter, map, Observable } from 'rxjs';
+import { ApiService } from '../../../data/api.service';
+import { TableItem } from '../../../shared/table/table.component';
+import { LineChartData } from '../../../shared/linechart/linechart.component';
+import { OverallExamSummary } from '../../../data/types/Exam.interface';
 
 @Component({
   selector: 'app-class-overview',
@@ -15,73 +18,127 @@ export class ClassOverviewComponent {
     value: number;
   }[]>;
 
-  lastExamPerformance$!: Observable<{
-    title: string;
-    xAxisNames: string[];
-    yAxisData: { name: string; data: number[] }[];
-  }>;
+  classScores$!: Observable<TableItem[][]>;
+  lastExamPerformances$!: Observable<LineChartData>;
 
-  classSummaries$!: Observable<any[]>;
+  // State used to manage classes user is delving into
+  lastExamPerformances!: OverallExamSummary[];
+  class!: string; // EG Form 1, Form 2, Form 3, Form 4
+  selectedData!: OverallExamSummary;
+  displayTitle!: string;
+  displayedData!: TableItem[][];
+  displayMode: 'student' | 'subject' | 'stream' = 'subject';
+  displayModes!: string[];
 
   constructor(
-    private apiService: AdminService,
+    private apiService: ApiService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
-    const summary$ = this.apiService.getSummary();
-    this.adminSummary$ = summary$.pipe(map(this.formatSchoolMetrics));
-    this.classSummaries$ = summary$.pipe(map(this.formatClassSummaries));
+    this.class = this.router.url.split('/')[2];
+    const userRole = 'Admin'
+    this.displayModes = userRole !== 'Admin' ? ['stream', 'subject'] : ['student', 'subject'];
 
-    this.lastExamPerformance$ = this.apiService.getLastResults()
-      .pipe(map(this.formatLastExamData));
+    this.apiService.getClassPerformanceTrend(parseInt(this.class)).subscribe();
 
+    const summary$ = this.apiService.getClassPerformanceTrend(parseInt(this.class)).pipe(filter(Boolean));
+    this.classScores$ = summary$.pipe(map(this.formatClassSummaries));
+    this.lastExamPerformances$ = summary$.pipe(map(this.formatPerformanceTrend));
+    summary$.subscribe((data) => this.lastExamPerformances = data);
   }
 
-    private formatSchoolMetrics(summary: AdminSummary) {
-      return [
-        { title: 'No. of Teachers', value: summary.teachers },
-        { title: 'No. of Students', value: summary.totalStudents },
-        { title: 'No. of Classes', value: summary.classes },
-      ];
-    }
+  private formatPerformanceTrend(exams: OverallExamSummary[]) {
+    const title = `Trend`;
+    const xAxisNames = exams.map((exam) => `${exam.examName}`);
+    const yAxisData = [{
+      name: 'Mean Points',
+      data: exams.map((score) => score.meanPoints),
+    }]
+    return { xAxisNames, yAxisData, title };
+  }
 
-    private formatLastExamData(lastExam: ClassPerformance[]) {
-      const exam = lastExam[0].performance.examName.split(' - ').pop();
-      const title = `Form 4 Performance Trend`;
-      const ordered = lastExam.sort((a, b) => a.form - b.form);
-      const xAxisNames = ordered.map((p) => `Form ${p.form}`);
-      const yAxisData = [{
-        name: 'Mean Points',
-        data: ordered.map((p) => p.performance.meanPoints),
-      }]
-      return { xAxisNames, yAxisData, title };
-    }
+  private formatClassSummaries(examScores: OverallExamSummary[]): TableItem[][] {
+    return  examScores.reverse().map((score) => ([
+      {
+        title: 'Exam',
+        value: `${score.examName}`,
+        type: 'text',
+      },
+      {
+        title: 'Student No.',
+        value: `${score.exams.length}`,
+        type: 'number',
+      },
+      {
+        title: 'Mean Grade',
+        value: score.grade,
+        type: 'number',
+      },
+      {
+        title: 'Mean Points',
+        value: `${score.meanPoints}%`,
+        type: 'number',
+      },
+    ]));
+  }
 
-    private formatClassSummaries(summary: AdminSummary) {
-      const classSummaries = summary.detailedClassSummary;
-      return  classSummaries.map((classSummary) => ([
+  onChartEvent(event: string) {
+    console.log(event);
+    if (!this.lastExamPerformances) return;
+    const clickedBar = this.lastExamPerformances.find((p) => event === `${p.examName}`);
+    if (!clickedBar) return;
+    this.selectedData = clickedBar;
+    this.displayTitle = clickedBar.examName;
+    this.setDisplayData();
+  }
+
+  toggleDisplayedData() {
+    this.displayMode = this.displayModes.find((mode) => mode !== this.displayMode) as 'student' | 'subject' | 'stream';
+    this.setDisplayData();
+  }
+
+  private setDisplayData() {
+    if (!this.selectedData) {
+      this.displayedData = [];
+      return;
+    };
+    if (this.displayMode === 'stream') {
+      this.displayedData = this.selectedData.streamResultsSummary.map((s) => [
         {
-          title: 'Exam',
-          value: `Exam ${classSummary.form}`,
-          type: 'text',
+          title: 'Stream', value: s.stream, type: 'text',
         },
         {
-          title: 'No. of Students',
-          value: classSummary.students,
-          type: 'number',
+          title: 'Grade', value: s.grade, type: 'text',
         },
         {
-          title: 'Last Grade',
-          value: `${classSummary.lastExamInfo.grade} (${classSummary.lastExamInfo.meanPoints}%)`,
-          type: 'text',
+          title: 'Points', value: `${s.meanPoints}%`, type: 'text',
+        },
+      ])
+    } else if (this.displayMode === 'subject') {
+      this.displayedData = this.selectedData.subjectSummary.map((s) => [
+        {
+          title: 'Subject', value: s.subject, type: 'text',
         },
         {
-          title: 'Action',
-          value: 'View Exam Details',
-          type: 'link',
-          link: `/form/${classSummary.form}/exam/${classSummary.lastExamInfo.examName}/performance`,
-        }
-      ]));
+          title: 'Grade', value: s.grade, type: 'text',
+        },
+        {
+          title: 'Points', value: `${s.meanPoints}%`, type: 'text',
+        },
+      ]);
+    } else {
+      this.displayedData = this.selectedData.exams.map((s) => [
+        {
+          title: 'Student', value: s.studentName, type: 'text',
+        },
+        {
+          title: 'Grade', value: s.meanGrade, type: 'text',
+        },
+        {
+          title: 'Points', value: `${s.meanPoints}%`, type: 'text',
+        },
+      ]);
     }
-}
+  }}
 

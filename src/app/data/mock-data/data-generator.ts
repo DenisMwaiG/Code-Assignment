@@ -1,63 +1,81 @@
-import { Grade, StudentExamResult, SubjectScore } from "../types/Exam.interface";
-import { StudentInfo } from "../types/Student.interface";
+import { groupBy } from "lodash";
+import { ExamSummary, Grade, OverallExamSummary, StreamResultSummary, StudentExamResult, SubjectScore } from "../types/Exam.interface";
+import { StreamInfo, StudentInfo } from "../types/Student.interface";
 import { generateUUID, gradesReference, studentFirstNames, studentLastNames, subjects } from "./mock-data-source";
 
-export interface StreamInfo {
-  form: number; // 1 - 4
-  stream: string; // North, South, East, West
-  students: StudentInfo[];
-}
-
 export function mockDataGenerator() {
+  // GENERATE DATA
   const classes = [];
   for (let form of [4, 3, 2, 1]) {
-    const streamsInfo = getStreamInfo(form);
+    const joiningYear = new Date().getFullYear() - (form - 1);
+    const streamsInfo = getStreamInfo(form, joiningYear);
     const classSummary = {
-      lastExamInfo: getLastExamInfo(streamsInfo),
       studentNo: streamsInfo.reduce((acc, stream) => acc + stream.students.length, 0),
       streamsInfo,
       form
     }
-
     classes.push(classSummary);
   }
-  return classes;
+
+  // GROUP IT FOR EASY API ACCESS
+  const students = classes.map(c => c.streamsInfo.map(stream => stream.students).flat()).flat();
+
+  const exams = classes.map(c => c.streamsInfo.map(stream => stream.students.map(student => student.examResults).flat()).flat()).flat();
+  const orderedExamsGroupedByForm = getExamsSummary(exams);
+  console.log({
+    students,
+    orderedExamsGroupedByForm
+  });
+  return {
+    classes,
+    students,
+    orderedExamsGroupedByForm
+  };
 }
 
-function getLastExamInfo(formData: StreamInfo[]) {
-  const lastExamNo = formData[0].students[0].examResults
-    ? formData[0].students[0].examResults[0].examNumber
-    : 0;
-  const lastExamPerformance = getFormPerformanceByExamNo(formData, lastExamNo);
-  return lastExamPerformance;
-}
-
-function getStreamInfo(form: number) {
+function getStreamInfo(form: number, joiningYear: number) {
   const streams = ['North', 'South', 'East', 'West'];
   const streamData: StreamInfo[] = [];
   for (let stream of streams) {
     streamData.push({
       form,
       stream,
-      students: getStudents(form, stream)
+      students: getStudents(form, stream, joiningYear)
     });
   }
   return streamData;
 }
 
 
-function getStudents(form: number, stream: string) {
+function getStudents(form: number, stream: string, joiningYear: number) {
   const students: StudentInfo[] = [];
   for (let i = 0; i < 2; i++) {
-    students.push(getStudentData(form, stream));
+    students.push(getStudentData(form, stream, joiningYear));
   }
   return students;
 }
 
-function getStudentData(currentForm: number, stream: string) {
+interface StudentMetaData {
+  studentId: string;
+  studentName: string;
+  stream: string;
+  joiningYear: number;
+  isAverage: boolean;
+}
+
+function getStudentData(currentForm: number, stream: string, joiningYear: number) {
   const firstName = studentFirstNames[Math.floor(Math.random() * studentFirstNames.length)];
   const lastName = studentLastNames[Math.floor(Math.random() * studentLastNames.length)];
   const isAverage = Math.random() > 0.7;
+  const studentId = generateUUID();
+  const studentName = `${firstName} ${lastName}`;
+  const studentData: StudentMetaData = {
+    studentId,
+    studentName,
+    stream,
+    joiningYear,
+    isAverage,
+  }
 
   const studentInfo: StudentInfo = {
     id: generateUUID(),
@@ -65,26 +83,27 @@ function getStudentData(currentForm: number, stream: string) {
     lastName,
     currentForm,
     stream,
-    examResults: generateExamResults(currentForm, isAverage),
+    joiningYear,
+    examResults: generateExamResults(currentForm, studentData),
   }
 
   return studentInfo;
 }
 
-function generateExamResults(currentForm: number, isAverage: boolean) {
+function generateExamResults(currentForm: number, studentData: StudentMetaData) {
   const allExamResults: StudentExamResult[] = [];
   for (let i = 0; i < currentForm; i++) {
     const year = new Date().getFullYear() - i;
     const form = currentForm - i;
 
-    const formResults = getFormResults(year, form, isAverage);
+    const formResults = getFormResults(year, form, studentData);
     allExamResults.push(...formResults);
   }
   // remove the last 4 as they are yet to happen
   return allExamResults.slice(4);
 }
 
-function getFormResults(year: number, form: number, isAverage: boolean) {
+function getFormResults(year: number, form: number, studentData: StudentMetaData) {
   const formResults: StudentExamResult[] = [];
 
   for (let term of [3, 2, 1]) {
@@ -93,7 +112,7 @@ function getFormResults(year: number, form: number, isAverage: boolean) {
       const subjectsScores = [];
 
       for (let subject of subjects) {
-        subjectsScores.push(getSubjectScore(subject, isAverage));
+        subjectsScores.push(getSubjectScore(subject, studentData.isAverage));
       }
 
       const totalPoints = subjectsScores.reduce((acc, curr) => acc + curr.points, 0);
@@ -110,7 +129,11 @@ function getFormResults(year: number, form: number, isAverage: boolean) {
         subjects: subjectsScores,
         totalPoints,
         meanPoints,
-        meanGrade
+        meanGrade,
+        studentId: studentData.studentId,
+        studentName: studentData.studentName,
+        studentJoiningYear: studentData.joiningYear,
+        stream: studentData.stream,
       }
       formResults.push(examResult);
     }
@@ -125,92 +148,97 @@ function getSubjectScore(subject: string, isAverage: boolean): SubjectScore {
   return { subject, points, grade };
 }
 
-/**
- * If stream is provided, only the performance of the specified stream will be calculated
- */
-function getFormPerformanceByExamNo(streamsInfo: StreamInfo[], examNo: number, stream?: string) {
-  let examName = '';
-
-  // CALCULATE PERFORMANCE PER STREAM
-  const streamsPerformance = streamsInfo.map((streamInfo) => {
-    const students = stream ? streamInfo.students.filter((student) => student.stream === stream) : streamInfo.students;
-    const scoreSummary = students.reduce((acc, student) => {
-      const examResult = student.examResults?.find((result) => result.examNumber === examNo);
-      if (examResult) {
-        if (!examName) examName = examResult.name;
-        acc.totalPoints += examResult.meanPoints;
-        acc.totalStudents++;
-        examResult.subjects.forEach((subject) => {
-          const subjectIndex = acc.subjects.findIndex((s) => s.name === subject.subject);
-          if (subjectIndex === -1) {
-            acc.subjects.push({ name: subject.subject, totalPoints: subject.points });
-          } else {
-            acc.subjects[subjectIndex].totalPoints += subject.points;
-          }
-        });
-      }
-      return acc;
-    }, { totalPoints: 0, totalStudents: 0, subjects: []} as {
-      totalPoints: number;
-      totalStudents: number;
-      subjects: {name: string, totalPoints: number}[];
-    });
-    const meanPoints = scoreSummary.totalPoints / scoreSummary.totalStudents;
-    const subjectsSummary = scoreSummary.subjects.map((subject) => {
-      const meanPoints = subject.totalPoints / scoreSummary.totalStudents;
-      return {
-        subject: subject.name,
-        points: meanPoints,
-        grade: getGrade(meanPoints)
-      }
-    });
-    return {
-      stream: streamInfo.stream,
-      meanPoints,
-      grade: getGrade(meanPoints),
-      subjectsSummary,
-    }
-  });
-
-  // CALCULATE OVERALL FORM PERFORMANCE
-  const overallFormPerformance = streamsPerformance.reduce((acc, stream) => {
-    acc.totalPoints += stream.meanPoints;
-    acc.totalStudents++;
-
-    stream.subjectsSummary.forEach((subject) => {
-      const subjectIndex = acc.subjectsSummary.findIndex((s) => s.subject === subject.subject);
-      if (subjectIndex === -1) {
-        acc.subjectsSummary.push({ subject: subject.subject, points: subject.points, grade: subject.grade });
-      } else {
-        acc.subjectsSummary[subjectIndex].points += subject.points;
-      }
-    });
-
-    return acc;
-  }, { totalPoints: 0, totalStudents: 0, subjectsSummary: [] as {subject: string, points: number, grade: Grade}[]});
-
-  const meanPoints = overallFormPerformance.totalPoints / overallFormPerformance.totalStudents;
-  const grade = getGrade(meanPoints);
-  const subjectsSummary = overallFormPerformance.subjectsSummary.map((subject) => {
-    const meanPoints = subject.points / overallFormPerformance.totalStudents;
-    return {
-      subject: subject.subject,
-      points: meanPoints,
-      grade: getGrade(meanPoints)
-    }
-  });
-
-  return {
-    examName,
-    meanPoints,
-    grade,
-    subjectsSummary,
-    streamsPerformance,
-  }
-}
-
 function getGrade(points: number): Grade {
   const roundedPoints = Math.round(points);
   const range = gradesReference.find((grade) => roundedPoints >= grade.lowerLimit && roundedPoints <= grade.upperLimit);
   return range?.grade ?? 'E';
+}
+
+function getExamsSummary(exams: StudentExamResult[]): {[form: string]: OverallExamSummary[]} {
+  const examsGroupedByForm = groupBy(exams, (exam) => `${exam.studentJoiningYear}`);
+  const orderedExamsGroupedByForm = Object.keys(examsGroupedByForm).sort().reduce((acc, key) => {
+    const joiningYear = parseInt(key);
+    const currentForm = new Date().getFullYear() - joiningYear + 1;
+    const formExams = examsGroupedByForm[key];
+    const groupedFormExams = groupBy(formExams, (exam) => exam.examNumber);
+
+    const summarizedFormExams = Object.keys(groupedFormExams).map((examNumber) => {
+      const exams = groupedFormExams[examNumber];
+      const examSummary = getExamSummary(exams);
+      const streamResultsSummary = getStreamSummaryFromExamResults(exams);
+
+      return {
+        ...examSummary,
+        streamResultsSummary,
+        examNumber: parseInt(examNumber),
+      }
+    });
+
+    acc[currentForm] = summarizedFormExams
+    return acc;
+  }, {} as {[form: string]: {
+      form: number;
+      examNumber: number;
+      examName: string;
+      totalPoints: number;
+      meanPoints: number;
+      grade: Grade;
+      subjectSummary: { totalPoints: number; meanPoints: number; grade: Grade; subject: string; }[];
+      exams: StudentExamResult[];
+      streamResultsSummary: StreamResultSummary[];
+    }[]
+  });
+  return orderedExamsGroupedByForm;
+}
+
+function getSubjectSummaryFromExamResults(exams: StudentExamResult[]) {
+  const subjects = exams.map((exam) => exam.subjects).flat();
+  const groupedSubjects = groupBy(subjects, (subject) => subject.subject);
+  const subjectSummary = Object.keys(groupedSubjects).map((subject) => {
+    const subjectScores = groupedSubjects[subject];
+    return {
+      ...getSubjectSummary(subjectScores),
+      subject,
+    };
+  });
+  return subjectSummary;
+}
+
+function getSubjectSummary(subjects: SubjectScore[]) {
+  const totalPoints = subjects.reduce((acc, subject) => acc + subject.points, 0);
+  const meanPoints = totalPoints / subjects.length;
+  const grade = getGrade(meanPoints);
+  return { totalPoints, meanPoints, grade };
+}
+
+function getExamSummary(exams: StudentExamResult[]): ExamSummary {
+  const examName = exams[0].name;
+  const examNumber = exams[0].examNumber;
+  const form = exams[0].form;
+  const totalPoints = exams.reduce((acc, exam) => acc + exam.meanPoints, 0);
+  const meanPoints = totalPoints / exams.length;
+  const grade = getGrade(meanPoints);
+  const subjectSummary = getSubjectSummaryFromExamResults(exams);
+  return {
+    form,
+    examName,
+    examNumber,
+    totalPoints,
+    meanPoints,
+    grade,
+    subjectSummary,
+    exams,
+  };
+}
+
+function getStreamSummaryFromExamResults(exams: StudentExamResult[]): StreamResultSummary[] {
+  const examsGroupedByStreams = groupBy(exams, (exam) => exam.stream);
+  const streamSummary = Object.keys(examsGroupedByStreams).map((stream) => {
+    const streamExams = examsGroupedByStreams[stream];
+    return {
+      stream,
+      ...getExamSummary(streamExams),
+    };
+  });
+  return streamSummary;
 }

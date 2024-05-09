@@ -8,6 +8,6 @@ import { menuOptions } from '../../data/menu';
 })
 export class SidebarComponent {
 
-  navOptions = menuOptions.Admin;
+  navOptions = menuOptions.Teacher;
 
 }

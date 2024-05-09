@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { AdminService } from '../../../data/api.service';
-import { AdminSummary, ClassPerformance } from '../../../data/types/ResponseTypes.interface';
+import { filter, map, Observable, tap } from 'rxjs';
+import { ApiService } from '../../../data/api.service';
+import { StudentExamResult } from '../../../data/types/Exam.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-student-exam-performance',
@@ -10,9 +11,10 @@ import { AdminSummary, ClassPerformance } from '../../../data/types/ResponseType
 })
 export class StudentExamPerformanceComponent {
 
+  pageTitle = 'Student Exam Performance';
   adminSummary$!: Observable<{
     title: string;
-    value: number;
+    value: number | string;
   }[]>;
 
   lastExamPerformance$!: Observable<{
@@ -24,60 +26,55 @@ export class StudentExamPerformanceComponent {
   classSummaries$!: Observable<any[]>;
 
   constructor(
-    private apiService: AdminService,
+    private apiService: ApiService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
-    const summary$ = this.apiService.getSummary();
-    this.adminSummary$ = summary$.pipe(map(this.formatSchoolMetrics));
-    this.classSummaries$ = summary$.pipe(map(this.formatClassSummaries));
-
-    this.lastExamPerformance$ = this.apiService.getLastResults()
-      .pipe(map(this.formatLastExamData));
+    const url = this.router.url;
+    const [x, studentId, y, examId] = url.split('/').slice(1);
+    const exam$ = this.apiService.getStudentExamPerformance(studentId, examId).pipe(filter(Boolean));
+    this.adminSummary$ = exam$?.pipe(
+      tap((exam) => this.pageTitle = `${exam.studentName} | ${exam.name}`),
+      map(this.formatSchoolMetrics));
+    this.lastExamPerformance$ = exam$?.pipe(map(this.formatSubjectScores));
+    this.classSummaries$ = exam$?.pipe(map(this.formatClassSummaries));
 
   }
 
-  private formatSchoolMetrics(summary: AdminSummary) {
+  private formatSchoolMetrics(exam: StudentExamResult) {
     return [
-      { title: 'Mean Grade', value: summary.teachers },
-      { title: 'Mean Points', value: summary.totalStudents },
-      { title: 'Total Points', value: summary.classes },
+      { title: 'Mean Grade', value: exam.meanGrade as string },
+      { title: 'Mean Points', value: exam.meanPoints },
+      { title: 'Total Points', value: exam.totalPoints },
     ];
   }
 
-  private formatLastExamData(lastExam: ClassPerformance[]) {
-    const exam = lastExam[0].performance.examName.split(' - ').pop();
-    const title = `Student Name - ${exam}`;
-    const ordered = lastExam.sort((a, b) => a.form - b.form);
-    const xAxisNames = ordered.map((p) => `Form ${p.form}`);
+  private formatSubjectScores(exam: StudentExamResult) {
+    const title = `Performance per subject`;
+    const xAxisNames = exam.subjects.map((s) => `${s.subject}`);
     const yAxisData = [{
       name: 'Mean Points',
-      data: ordered.map((p) => p.performance.meanPoints),
+      data: exam.subjects.map((s) => s.points),
     }]
     return { xAxisNames, yAxisData, title };
   }
 
-  private formatClassSummaries(summary: AdminSummary) {
-    const classSummaries = summary.detailedClassSummary;
-    return  classSummaries.map((classSummary) => ([
+  private formatClassSummaries(exam: StudentExamResult) {
+    return  exam.subjects.map((subject) => ([
       {
         title: 'Subject',
-        value: `Subject ${classSummary.form}`,
+        value: `${subject.subject}`,
         type: 'text',
       },
       {
         title: 'Mean Grade',
-        value: `${classSummary.lastExamInfo.grade} (${classSummary.lastExamInfo.meanPoints}%)`,
+        value: subject.grade as string,
         type: 'text',
       },
       {
         title: 'Mean Points',
-        value: `${classSummary.lastExamInfo.grade} (${classSummary.lastExamInfo.meanPoints}%)`,
-        type: 'text',
-      },
-      {
-        title: 'Total Points',
-        value: `${classSummary.lastExamInfo.grade} (${classSummary.lastExamInfo.meanPoints}%)`,
+        value: subject.points,
         type: 'text',
       },
     ]));

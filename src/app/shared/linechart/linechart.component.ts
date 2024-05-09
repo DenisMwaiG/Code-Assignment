@@ -1,6 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { EChartsOption } from 'echarts';
 
+export interface LineChartData {
+  title: string;
+  xAxisNames: string[];
+  yAxisData: { name: string; data: number[] }[];
+}
 @Component({
   selector: 'app-linechart',
   templateUrl: './linechart.component.html',
@@ -13,6 +18,7 @@ export class LinechartComponent {
     name: string;
     data: number[];
   }[] = [];
+  @Output() chartClick = new EventEmitter();
 
   chartOptions: EChartsOption = {};
 
@@ -38,12 +44,6 @@ export class LinechartComponent {
         type: 'line',
       })),
       color: ["#43AB49"],
-      legend: {
-        data: this.xAxisLabels,
-        textStyle: { color: "#858d98" },
-        left: 20,
-        bottom: 0,
-      },
       tooltip: {
         trigger: "axis",
         axisPointer: { type: "cross", crossStyle: { color: "#999" } },

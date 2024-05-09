@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { AdminDashboardComponent } from './app-pages/admin-dashboard/admin-dashboard.component';
-import { ClassesListComponent } from './app-pages/classes-list/classes-list.component';
 import { ClassOverviewComponent } from './app-pages/class-overview/class-overview.component';
 import { ClassExamPerformanceComponent } from './app-pages/class-exam-performance/class-exam-performance.component';
 import { StudentListComponent } from './app-pages/student-list/student-list.component';
@@ -13,10 +12,6 @@ const AdminLevelRoutes: Routes = [
   {
     path: 'dashboard',
     component: AdminDashboardComponent
-  },
-  {
-    path: 'class-list',
-    component: ClassesListComponent
   },
 ];
 
@@ -56,7 +51,7 @@ const routes: Routes = [
     children: [...TeacherLevelRoutes, ...StudentLevelRoutes]
   },
   {
-    path: ':student',
+    path: 'student/:student',
     children: StudentLevelRoutes
   }
 ];

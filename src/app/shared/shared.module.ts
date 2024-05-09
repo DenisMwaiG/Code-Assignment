@@ -8,10 +8,18 @@ import { BarchartComponent } from './barchart/barchart.component';
 import { TableComponent } from './table/table.component';
 import { RouterModule } from '@angular/router';
 import { LinechartComponent } from './linechart/linechart.component';
+import { ChartDataComponent } from './chart-data/chart-data.component';
 
+const components = [
+  SummaryCardComponent,
+  BarchartComponent,
+  TableComponent,
+  LinechartComponent,
+  ChartDataComponent
+];
 
 @NgModule({
-  declarations: [SummaryCardComponent, BarchartComponent, TableComponent, LinechartComponent],
+  declarations: [...components],
   imports: [
     CommonModule,
     RouterModule,
@@ -19,11 +27,6 @@ import { LinechartComponent } from './linechart/linechart.component';
       echarts: () => import('echarts')
     }),
   ],
-  exports: [
-    SummaryCardComponent,
-    BarchartComponent,
-    TableComponent,
-    LinechartComponent
-  ]
+  exports: [...components]
 })
 export class SharedModule { }

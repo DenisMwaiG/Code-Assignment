@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { AdminService } from '../../../data/api.service';
-import { AdminSummary } from '../../../data/types/ResponseTypes.interface';
+import { ApiService } from '../../../data/api.service';
+import { AdminSummary, StudentInfo } from '../../../data/types/Student.interface';
 import { map, Observable } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-student-list',
@@ -12,37 +13,44 @@ export class StudentListComponent implements OnInit {
   classSummaries$!: Observable<any[]>;
 
   constructor(
-    private apiService: AdminService,
+    private apiService: ApiService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
-    const summary$ = this.apiService.getSummary();
-    this.classSummaries$ = summary$.pipe(map(this.formatClassSummaries));
+    const url = this.router.url;
+    console.log(url);
+    const form = url.split('/')[2];
+    const stream = url.split('/')[3];
+    const classSummaries$ = this.apiService.getStudentByForm(
+      parseInt(form),
+      'North'
+    );
+    this.classSummaries$ = classSummaries$.pipe(map(this.formatClassSummaries));
   }
 
-  private formatClassSummaries(summary: AdminSummary) {
-    const classSummaries = summary.detailedClassSummary;
-    return  classSummaries.map((classSummary) => ([
+  private formatClassSummaries(students: StudentInfo[]) {
+    return  students.map((student) => ([
       {
-        title: 'Class',
-        value: `Form ${classSummary.form}`,
+        title: 'Student Name',
+        value: `${student.firstName} ${student.lastName}`,
         type: 'text',
       },
       {
-        title: 'No. of Students',
-        value: classSummary.students,
-        type: 'number',
+        title: 'Stream',
+        value: student.stream,
+        type: 'text',
       },
       {
-        title: 'Last Grade',
-        value: `${classSummary.lastExamInfo.grade} (${classSummary.lastExamInfo.meanPoints}%)`,
+        title: 'Joining Year',
+        value: student.joiningYear,
         type: 'text',
       },
       {
         title: 'Action',
         value: 'View Student',
         type: 'link',
-        link: `/student/overview`,
+        link: `/student/${student.id}/overview`,
       }
     ]));
   }

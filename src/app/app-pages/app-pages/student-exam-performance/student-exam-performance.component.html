@@ -1,4 +1,4 @@
-<h5 class="px-3">Student Exam Performance</h5>
+<h5 class="px-3 pb-2">{{pageTitle}}</h5>
 <div class="container">
   <!-- SCHOOL METRICS -->
   <div class="row mb-2">
@@ -22,7 +22,6 @@
 
   @if (classSummaries$ | async; as classes) {
     <div class="row mt-4">
-      <h6 class="px-3">Subject Performance</h6>
       <div class="col-12">
         <app-table [rows]="classes"></app-table>
       </div>

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { AdminService } from '../../../data/api.service';
-import { AdminSummary, ClassPerformance } from '../../../data/types/ResponseTypes.interface';
+import { ApiService } from '../../../data/api.service';
+import { AdminSummary } from '../../../data/types/Student.interface';
+import { OverallExamSummary } from '../../../data/types/Exam.interface';
 
 @Component({
   selector: 'app-class-exam-performance',
@@ -24,7 +25,7 @@ export class ClassExamPerformanceComponent {
   classSummaries$!: Observable<any[]>;
 
   constructor(
-    private apiService: AdminService,
+    private apiService: ApiService,
   ) {}
 
   ngOnInit() {
@@ -45,14 +46,14 @@ export class ClassExamPerformanceComponent {
       ];
     }
 
-    private formatLastExamData(lastExam: ClassPerformance[]) {
-      const exam = lastExam[0].performance.examName.split(' - ').pop();
+    private formatLastExamData(lastExam: OverallExamSummary[]) {
+      const exam = lastExam[0].examName.split(' - ').pop();
       const title = `Form 4 Performance in ${exam}`;
       const ordered = lastExam.sort((a, b) => a.form - b.form);
-      const xAxisNames = ordered.map((p) => `Form ${p.form}`);
+      const xAxisNames = ordered.map((p) => `${p.form}`);
       const yAxisData = [{
         name: 'Mean Points',
-        data: ordered.map((p) => p.performance.meanPoints),
+        data: ordered.map((p) => p.meanPoints),
       }]
       return { xAxisNames, yAxisData, title };
     }
@@ -72,7 +73,7 @@ export class ClassExamPerformanceComponent {
         },
         {
           title: 'Mean Grade',
-          value: `${classSummary.lastExamInfo.grade}`,
+          value: `A`,
           type: 'text',
         },
         {
