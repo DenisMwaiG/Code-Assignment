@@ -40,7 +40,10 @@ export class ClassOverviewComponent {
 
   ngOnInit() {
     this.form = this.router.url.split('/')[2];
-    this.displayModes = this.authService.userInfo?.userRole === UserRole.Admin ? ['stream', 'subject'] : ['student', 'subject'];
+    this.authService.userInfo$.pipe(filter(Boolean))
+      .subscribe((user) => {
+        this.displayModes = user.userRole === UserRole.Admin ? ['stream', 'subject'] : ['student', 'subject'];
+      });
 
     this.apiService.getClassPerformanceTrend(parseInt(this.form)).subscribe();
 
