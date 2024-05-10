@@ -1,0 +1,33 @@
+/* Cross-browser SCSS to hide the scrollbar */
+.hide-scrollbar {
+  overflow: scroll;
+
+  /* WebKit Browsers (Chrome, Safari) */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Firefox */
+  scrollbar-width: none;
+
+  /* Internet Explorer and Edge */
+  -ms-overflow-style: none;
+}
+
+.testimonial {
+  min-width: 320px;
+  margin-right: 20px;
+  background-color: #fff;
+}
+
+.feature-bg {
+  background-color: #f8f9fa;
+  padding: 12px 40px;
+}
+
+.illustration {
+  max-width: 40%;
+  @media screen and (max-width: 768px) {
+    max-width: 100%;
+  }
+}

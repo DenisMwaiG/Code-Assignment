@@ -44,9 +44,9 @@ export class AdminDashboardComponent implements OnInit {
 
   private formatSchoolMetrics(summary: AdminSummary) {
     return [
-      { title: 'Mean Grade', value: summary.teachers },
-      { title: 'Mean Points', value: summary.totalStudents },
-      { title: 'Total Points', value: summary.classes },
+      { title: 'No. of Teachers', value: summary.teachers },
+      { title: 'No. of Students', value: summary.totalStudents },
+      { title: 'No. of Classes', value: summary.classes },
     ];
   }
 

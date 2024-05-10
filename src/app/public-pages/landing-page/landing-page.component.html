@@ -1,1 +1,99 @@
-<p>landing-page works!</p>
+<nav class="navbar navbar-expand-lg d-flex justify-content-between px-2 shadow-sm sticky-top bg-white">
+  <a class="navbar-brand d-flex align-items-center" routerLink="/">
+      <img src="assets/images/logo.png" alt="Zeraki Analytics" style="height: 54px;">
+      <h6 class="display-9 lead">
+        <span>Zeraki</span><br>
+        <span>Analytics</span>
+      </h6>
+  </a>
+  <button  [routerLink]="'/login'" class="user btn btn-success text-center">
+    Login
+  </button>
+</nav>
+
+<div class="container my-5">
+
+  <!-- Hero Section -->
+  <div class="row my-5">
+    <div class="col-md-5 my-3 mx-3">
+      <h1 class="display-6">Academic Excellence <br>should be burden-free</h1>
+      <p class="lead">
+        Empowering students and teachers with
+        <br>
+        - easy insights into academic progress
+        <br>
+        - personalized learning
+        <br>
+        - and so much more
+      </p>
+      <div class="mt-4">
+        <a [routerLink]="'/login'" class="btn btn-success mx-2">Login</a>
+        <a href="#" class="btn btn-outline-success">Request Demo</a>
+      </div>
+    </div>
+    <div class="col-md-6 my-5">
+      <img src="assets/images/hero_img.png" alt="Hero Image" class="img-fluid">
+    </div>
+  </div>
+
+  <!-- Testimonials Section -->
+  <div class="d-flex flex-column text-center my-5 bg-light p-4 pb-lg-5 rounded">
+    <h1 class="lead display-6 pb-3">Testimonials</h1>
+    <div class="d-flex flex-row mb-3 overflow-x-scroll hide-scrollbar">
+      @for (testimony of testimonials; track testimony; let index = $index) {
+        <div class="testimonial border rounded p-4">
+          "{{testimony.testimonial}}"
+          <br><br>
+          <span>{{testimony.name}}, {{testimony.school}}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Features for Different User Roles -->
+  <div class="mt-5 d-none d-md-block">
+    @for (feature of features; track feature.title; let index = $index) {
+      <div class="d-flex justify-content-center align-items-center">
+        <div class="illustration my-5" [class.d-none]="index % 2 === 0">
+          <img [src]="feature.image" alt="Hero Image" class="img-fluid">
+        </div>
+        <div class="d-flex align-items-center">
+          <div class="card shadow-md feature-bg">
+            <div class="card-body">
+              <h5 class="card-title mb-3">{{feature.title}}</h5>
+              <ul>
+                @for (point of feature.points; track point) {
+                  <li>{{point}}</li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="illustration my-5" [class.d-none]="index % 2 !== 0">
+          <img [src]="feature.image" alt="Hero Image" class="img-fluid">
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- On mobile -->
+  <div class="mt-5 d-block d-md-none">
+    @for (feature of features; track feature.title) {
+      <div class="illustration mt-5 mb-2">
+        <img [src]="feature.image" alt="Hero Image" class="img-fluid">
+      </div>
+      <div class="d-flex justify-content-center">
+        <div class="">
+          <div class="card-body">
+            <h5 class="card-title">{{feature.title}}</h5>
+            <ul>
+              @for (point of feature.points; track point) {
+                <li>{{point}}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
