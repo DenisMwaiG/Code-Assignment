@@ -101,7 +101,6 @@ export class AdminDashboardComponent implements OnInit {
   // HANDLE INSPECTION OF CHART ELEMENTS //
 
   onChartEvent(event: string) {
-    console.log(event);
     if (!this.lastExamPerformances) return;
     const clickedData = this.lastExamPerformances.find((p) => event === `Form ${p.form}`);
     if (!clickedData) return;

@@ -4,12 +4,13 @@ import { Observable, shareReplay } from 'rxjs';
 import { AdminSummary } from './types/Student.interface';
 import { OverallExamSummary, StudentExamResult } from './types/Exam.interface';
 import { StudentInfo } from './types/Student.interface';
+import { AuthService } from '../core/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private auth: AuthService) {}
 
   getSummary(): Observable<AdminSummary> {
     return this.http.get<AdminSummary>('/admin-dashboard-summary')
@@ -22,7 +23,10 @@ export class ApiService {
   }
 
   getClassPerformanceTrend(form: number): Observable<OverallExamSummary[]> {
-    const params = new HttpParams().set('form', form.toString());
+    const stream = this.auth.userInfo?.stream || '';
+    const params = new HttpParams()
+      .set('form', form.toString())
+      .set('stream', stream || '');
     return this.http.get<OverallExamSummary[]>('/class-performance-trend', {
       params,
     }).pipe(shareReplay());

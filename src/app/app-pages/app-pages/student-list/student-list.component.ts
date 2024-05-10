@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../../data/api.service';
-import { AdminSummary, StudentInfo } from '../../../data/types/Student.interface';
+import { StudentInfo } from '../../../data/types/Student.interface';
 import { map, Observable } from 'rxjs';
-import { Router } from '@angular/router';
+import { AuthService } from '../../../core/auth.service';
 
 @Component({
   selector: 'app-student-list',
@@ -14,17 +14,15 @@ export class StudentListComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private router: Router,
+    private auth: AuthService,
   ) {}
 
   ngOnInit(): void {
-    const url = this.router.url;
-    console.log(url);
-    const form = url.split('/')[2];
-    const stream = url.split('/')[3];
+    const form = this.auth.userInfo?.form || '';
+    const stream = this.auth.userInfo?.stream || '';
     const classSummaries$ = this.apiService.getStudentByForm(
       parseInt(form),
-      'North'
+      stream
     );
     this.classSummaries$ = classSummaries$.pipe(map(this.formatClassSummaries));
   }
@@ -37,8 +35,8 @@ export class StudentListComponent implements OnInit {
         type: 'text',
       },
       {
-        title: 'Stream',
-        value: student.stream,
+        title: 'Class',
+        value: `${student.currentForm} ${student.stream}`,
         type: 'text',
       },
       {

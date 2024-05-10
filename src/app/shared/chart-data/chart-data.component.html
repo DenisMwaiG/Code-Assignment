@@ -7,7 +7,7 @@
       }
     </div>
     @if (title && otherMode) {
-      <button (click)="onToggleMode.emit()" class="btn btn-sm btn-outline-secondary">
+      <button (click)="onToggleMode.emit()" class="btn btn-sm btn-light">
         By {{otherMode | titlecase }}
       </button>
     }
@@ -16,7 +16,6 @@
     <app-table [rows]="displayedData"></app-table>
   }
   @else {
-    <!-- center -->
     <div class="d-flex justify-content-center align-items-center h-100">
       <p class="text-muted text-center">Click on a point the chart  <br />to view details</p>
     </div>

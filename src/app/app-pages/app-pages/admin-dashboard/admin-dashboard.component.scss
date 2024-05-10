@@ -3,3 +3,9 @@
     padding: 16px 0px;
   }
 }
+
+.table-responsive {
+  @media (max-width: 768px) {
+    overflow-x: auto;
+  }
+}

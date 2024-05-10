@@ -1,7 +1,8 @@
 import { groupBy } from "lodash";
 import { ExamSummary, Grade, OverallExamSummary, StreamResultSummary, StudentExamResult, SubjectScore } from "../types/Exam.interface";
 import { StreamInfo, StudentInfo } from "../types/Student.interface";
-import { generateUUID, gradesReference, studentFirstNames, studentLastNames, subjects } from "./mock-data-source";
+import { generateUUID, gradesReference, streamNames, studentFirstNames, studentLastNames, subjects } from "./mock-data-source";
+import { UserRole } from "../types/Auth.interface";
 
 export function mockDataGenerator() {
   // GENERATE DATA
@@ -22,10 +23,7 @@ export function mockDataGenerator() {
 
   const exams = classes.map(c => c.streamsInfo.map(stream => stream.students.map(student => student.examResults).flat()).flat()).flat();
   const orderedExamsGroupedByForm = getExamsSummary(exams);
-  console.log({
-    students,
-    orderedExamsGroupedByForm
-  });
+
   return {
     classes,
     students,
@@ -64,8 +62,7 @@ interface StudentMetaData {
 }
 
 function getStudentData(currentForm: number, stream: string, joiningYear: number) {
-  const firstName = studentFirstNames[Math.floor(Math.random() * studentFirstNames.length)];
-  const lastName = studentLastNames[Math.floor(Math.random() * studentLastNames.length)];
+  const {firstName, lastName} = generateName();
   const isAverage = Math.random() > 0.7;
   const studentId = generateUUID();
   const studentName = `${firstName} ${lastName}`;
@@ -88,6 +85,12 @@ function getStudentData(currentForm: number, stream: string, joiningYear: number
   }
 
   return studentInfo;
+}
+
+export function generateName() {
+  const firstName = studentFirstNames[Math.floor(Math.random() * studentFirstNames.length)];
+  const lastName = studentLastNames[Math.floor(Math.random() * studentLastNames.length)];
+  return {firstName, lastName};
 }
 
 function generateExamResults(currentForm: number, studentData: StudentMetaData) {
@@ -242,3 +245,24 @@ function getStreamSummaryFromExamResults(exams: StudentExamResult[]): StreamResu
   });
   return streamSummary;
 }
+
+export const MOCK_TEACHERS = [1, 2, 3, 4]
+  .map((form) => {
+      return {
+        form,
+        userRole: UserRole.Teacher,
+        userId: generateUUID(),
+        userName: `form_${form}_teacher`,
+        displayName: `Form ${form} Teacher`,
+        password: `form_${form}_teacher`
+    };
+  }
+);
+
+export const MOCK_ADMIN = {
+  userRole: UserRole.Admin,
+  userId: generateUUID(),
+  userName: 'AdminUser',
+  displayName: 'Head Teacher',
+  password: 'admin'
+};

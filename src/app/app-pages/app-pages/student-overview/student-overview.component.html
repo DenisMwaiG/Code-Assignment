@@ -10,7 +10,7 @@
 
   @if (performanceTrend$ | async; as summary) {
     <div class="row">
-      <div class="col-8">
+      <div class="col-md-8">
         <app-linechart
           [xAxisLabels]="summary.xAxisNames"
           [seriesValues]="summary.yAxisData"
@@ -20,7 +20,7 @@
       </div>
 
       <!-- TODO: ENABLE VIEWING SUBJECT PERFORMANCE FOR AN EXAM -->
-      <div class="col-4">
+      <div class="col-md-4">
         <app-chart-data
           [title]="displayTitle"
           [displayedData]="displayedData"
@@ -34,7 +34,7 @@
   <!-- CLASS SUMMARY -->
   @if (examList$ | async; as exams) {
     <div class="row mt-4">
-      <div class="col-12">
+      <div class="col-md-12">
         <app-table [rows]="exams"></app-table>
       </div>
     </div>

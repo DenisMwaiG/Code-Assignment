@@ -1,9 +1,12 @@
-<nav class="navbar fixed-bottom d-md-none">
+<nav class="navbar fixed-bottom d-md-none bg-light border-2">
   <div class="container-fluid d-flex justify-content-around pb-2">
     @for (option of navOptions; track option.title) {
       <a [routerLink]="option.link" class="text-decoration-none">
         <i class="fas fa-{{option.icon}}"></i>
       </a>
     }
+    <a (click)="logout()" class="text-decoration-none text-center">
+      <i class="fas fa-lock"></i>
+    </a>
   </div>
 </nav>

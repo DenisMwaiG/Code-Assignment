@@ -1,4 +1,12 @@
-export const menuOptions = {
+export interface MenuOption {
+  title: string,
+  icon: string,
+  link: string
+}
+
+export const menuOptions: {
+  [key: string]: MenuOption[]
+} = {
   Admin: [
     {
       title: 'Dashboard',

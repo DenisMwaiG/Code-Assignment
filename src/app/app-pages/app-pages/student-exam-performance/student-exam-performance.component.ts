@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { filter, map, Observable, tap } from 'rxjs';
+import { filter, map, Observable } from 'rxjs';
 import { ApiService } from '../../../data/api.service';
 import { StudentExamResult } from '../../../data/types/Exam.interface';
 import { Router } from '@angular/router';
@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 })
 export class StudentExamPerformanceComponent {
 
-  pageTitle = 'Student Exam Performance';
+  pageTitle!: string;
   adminSummary$!: Observable<{
     title: string;
     value: number | string;
@@ -33,13 +33,13 @@ export class StudentExamPerformanceComponent {
   ngOnInit() {
     const url = this.router.url;
     const [x, studentId, y, examId] = url.split('/').slice(1);
+
     const exam$ = this.apiService.getStudentExamPerformance(studentId, examId).pipe(filter(Boolean));
-    this.adminSummary$ = exam$?.pipe(
-      tap((exam) => this.pageTitle = `${exam.studentName} | ${exam.name}`),
-      map(this.formatSchoolMetrics));
+    exam$.subscribe(exam => this.pageTitle = `${exam.studentName} | ${exam.name}`)
+
+    this.adminSummary$ = exam$?.pipe(map(this.formatSchoolMetrics));
     this.lastExamPerformance$ = exam$?.pipe(map(this.formatSubjectScores));
     this.classSummaries$ = exam$?.pipe(map(this.formatClassSummaries));
-
   }
 
   private formatSchoolMetrics(exam: StudentExamResult) {

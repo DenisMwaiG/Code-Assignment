@@ -8,8 +8,10 @@ import {
 } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { MockDataService } from './mock-data.service';
-import { mockDataGenerator } from './data-generator';
+import { MOCK_ADMIN, MOCK_TEACHERS, mockDataGenerator } from './data-generator';
 import { MOCK_DATA } from './data';
+import { UserRole } from '../types/Auth.interface';
+import { cloneDeep, orderBy } from 'lodash';
 
 @Injectable(
   { providedIn: 'root' }
@@ -18,8 +20,7 @@ export class MockApiInterceptor implements HttpInterceptor {
   MOCK_DATA!: ReturnType<typeof mockDataGenerator>;
   constructor(private mockDataService: MockDataService) {
     // this.MOCK_DATA = mockDataGenerator();
-    this.MOCK_DATA = MOCK_DATA as ReturnType<typeof mockDataGenerator>;
-    // console.log({MOCK_DATA: this.MOCK_DATA});
+    this.MOCK_DATA = cloneDeep(MOCK_DATA) as ReturnType<typeof mockDataGenerator>;
   }
 
   intercept(
@@ -35,6 +36,9 @@ export class MockApiInterceptor implements HttpInterceptor {
 
 
     switch (endpoint) {
+      case '/login':
+        const { username, password } = req.body;
+        return this.handleLogin(username, password);
       case '/admin-dashboard-summary':
         return of(
           new HttpResponse({
@@ -59,11 +63,10 @@ export class MockApiInterceptor implements HttpInterceptor {
         );
       case '/class-students':
         const parsedForm = parseInt(params['form']);
-        const stream = params['stream'];
         return of(
           new HttpResponse({
             status: 200,
-            body: this.handleClassStudents(parsedForm, stream),
+            body: this.handleClassStudents(parsedForm),
           })
         );
       case '/student-performance-trend':
@@ -100,6 +103,52 @@ export class MockApiInterceptor implements HttpInterceptor {
     return next.handle(req);
   }
 
+  private handleLogin(username: string, password: string) {
+    if (username === MOCK_ADMIN.userName && password === MOCK_ADMIN.password) {
+      return of(
+        new HttpResponse({
+          status: 200,
+          body: MOCK_ADMIN,
+        })
+      );
+    }
+    const teachers = MOCK_TEACHERS;
+    const teacher = teachers.find((teacher) => teacher.userName === username && teacher.password === password);
+    if (teacher) {
+      return of(
+        new HttpResponse({
+          status: 200,
+          body: teacher,
+        })
+      );
+    }
+    const students = this.MOCK_DATA.students;
+    const student = students.find(
+      (student) =>
+        `${student.firstName}_${student.lastName}` === username &&  `${student.firstName}_${student.lastName}` === password
+    );
+    if (student) {
+      return of(
+        new HttpResponse({
+          status: 200,
+          body: {
+            userRole: UserRole.Student,
+            userId: student.id,
+            displayName: `${student.firstName} ${student.lastName}`,
+            userName: `${student.firstName}_${student.lastName}`.toLowerCase(),
+          },
+        })
+      );
+    }
+    return of(
+      new HttpResponse({
+        status: 401,
+        statusText: 'Unauthorized',
+        body: { error: 'Invalid username or password' },
+      })
+    );
+  }
+
   private handleAdminDashboardSummary() {
     const { classes, students } = this.MOCK_DATA;
     const detailedClassSummary = classes.map((data) => ({
@@ -116,24 +165,24 @@ export class MockApiInterceptor implements HttpInterceptor {
   }
 
   private handleLastExamPerformance() {
-    const { orderedExamsGroupedByForm } = this.MOCK_DATA;
+    const { orderedExamsGroupedByForm } = cloneDeep(this.MOCK_DATA);
     const lastExamInfo = Object.keys(orderedExamsGroupedByForm).map((form) => {
-      const lastExam = orderedExamsGroupedByForm[form].slice(-1)[0];
-      return lastExam;
+      const orderedExams = orderBy(orderedExamsGroupedByForm[form], 'examNumber', 'desc');
+      return orderedExams[0];
     });
     return lastExamInfo;
   }
 
-  private handleClassPerformanceTrend(form: number, stream?: string) {
+  private handleClassPerformanceTrend(form: number) {
     const { orderedExamsGroupedByForm } = this.MOCK_DATA;
     const classData = orderedExamsGroupedByForm[form];
     return classData;
   }
 
-  private handleClassStudents(form: number, stream: string) {
+  private handleClassStudents(form: number) {
     const { students } = this.MOCK_DATA;
     const streamData = students.filter(
-      (student) => student.currentForm === form && student.stream === stream
+      (student) => student.currentForm === form
     );
     return streamData;
   }

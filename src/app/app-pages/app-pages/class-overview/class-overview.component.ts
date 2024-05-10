@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
 import { filter, map, Observable } from 'rxjs';
 import { ApiService } from '../../../data/api.service';
 import { TableItem } from '../../../shared/table/table.component';
 import { LineChartData } from '../../../shared/linechart/linechart.component';
 import { OverallExamSummary } from '../../../data/types/Exam.interface';
+import { UserRole } from '../../../data/types/Auth.interface';
+import { AuthService } from '../../../core/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-class-overview',
@@ -23,7 +25,7 @@ export class ClassOverviewComponent {
 
   // State used to manage classes user is delving into
   lastExamPerformances!: OverallExamSummary[];
-  class!: string; // EG Form 1, Form 2, Form 3, Form 4
+  form!: string;
   selectedData!: OverallExamSummary;
   displayTitle!: string;
   displayedData!: TableItem[][];
@@ -32,17 +34,17 @@ export class ClassOverviewComponent {
 
   constructor(
     private apiService: ApiService,
+    private authService: AuthService,
     private router: Router,
   ) {}
 
   ngOnInit() {
-    this.class = this.router.url.split('/')[2];
-    const userRole = 'Admin'
-    this.displayModes = userRole !== 'Admin' ? ['stream', 'subject'] : ['student', 'subject'];
+    this.form = this.router.url.split('/')[2];
+    this.displayModes = this.authService.userInfo?.userRole === UserRole.Admin ? ['stream', 'subject'] : ['student', 'subject'];
 
-    this.apiService.getClassPerformanceTrend(parseInt(this.class)).subscribe();
+    this.apiService.getClassPerformanceTrend(parseInt(this.form)).subscribe();
 
-    const summary$ = this.apiService.getClassPerformanceTrend(parseInt(this.class)).pipe(filter(Boolean));
+    const summary$ = this.apiService.getClassPerformanceTrend(parseInt(this.form)).pipe(filter(Boolean));
     this.classScores$ = summary$.pipe(map(this.formatClassSummaries));
     this.lastExamPerformances$ = summary$.pipe(map(this.formatPerformanceTrend));
     summary$.subscribe((data) => this.lastExamPerformances = data);
@@ -84,7 +86,6 @@ export class ClassOverviewComponent {
   }
 
   onChartEvent(event: string) {
-    console.log(event);
     if (!this.lastExamPerformances) return;
     const clickedBar = this.lastExamPerformances.find((p) => event === `${p.examName}`);
     if (!clickedBar) return;

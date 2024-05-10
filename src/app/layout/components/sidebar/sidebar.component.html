@@ -1,8 +1,14 @@
-<nav class="sidebar  d-none d-md-flex flex-column">
+<nav class="sidebar d-none d-md-flex flex-column">
   @for (option of navOptions; track option.title) {
       <a [routerLink]="option.link">
         <i class="fas fa-{{option.icon}}"></i>
         <span class="ps-3">{{option.title}}</span>
       </a>
   }
+  <div class="flex-grow-1"></div> <!-- push logout button to the bottom -->
+  <!-- add a logout button at the bottom -->
+  <button class="btn btn-light" (click)="logout()">
+    <i class="fas fa-lock"></i>
+    <span class="ps-3">Logout</span>
+  </button>
 </nav>

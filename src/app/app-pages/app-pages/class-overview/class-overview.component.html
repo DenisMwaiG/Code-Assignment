@@ -1,11 +1,11 @@
 
 <div class="container">
-  <h5 class="pb-3">Form {{class}} Performance Trend</h5>
+  <h5 class="pb-3">Form {{form}} Performance Trend</h5>
 
   <!-- SHOW CLASS PERFORMANCE SUMMARY TREND OVER DIFFERENT EXAMS -->
   @if (lastExamPerformances$ | async; as summary) {
     <div class="row">
-      <div class="col-8">
+      <div class="col-md-8 mb-4">
         <app-linechart
           [xAxisLabels]="summary.xAxisNames"
           [seriesValues]="summary.yAxisData"
@@ -15,7 +15,7 @@
       </div>
 
       <!-- ENABLE VIEWING SUBJECT/STREAM OR STUDENT IN THE CASE OF A TEACHER -->
-      <div class="col-4">
+      <div class="col-md-4 mb-4">
         <app-chart-data
           [title]="displayTitle"
           [displayedData]="displayedData"
@@ -28,9 +28,9 @@
 
 <!-- EXAMS LIST -->
 @if (classScores$ | async; as classes) {
-  <div class="row mt-5">
+  <div class="row mt-3">
     <h5 class="px-4 pb-2">Exam Details</h5>
-    <div class="col-12">
+    <div class="col-md-12">
       <app-table [rows]="classes"></app-table>
     </div>
   </div>
